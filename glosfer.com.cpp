@@ -5,6 +5,7 @@
 
 #include "stdafx.h"
 #include <math.h>
+#include <stdio.h>
 
 int get_max_xy(int n)
 {
@@ -53,18 +54,63 @@ bool check_digit_sum(int x, int y, int n)
 	return true;
 }
 
+bool find_path(int x0, int y0, int n)
+{
+	int x0_org, y0_org;
+	bool find_x_path;
+	bool find_y_path;
+
+	x0_org = x0;
+	y0_org = y0;
+
+	find_x_path = true;
+	while (x0 >= 10) {
+		if (check_digit_sum(x0 - 1, y0_org, n) == false) {
+			find_x_path = false;
+			break;
+		}
+
+		x0 -= 10;
+	}
+
+	find_y_path = true;
+	while (y0 >= 10) {
+		if (check_digit_sum(x0_org, y0 - 1, n) == false) {
+			find_y_path = false;
+			break;
+		}
+
+		y0 -= 10;
+	}
+
+	if ((find_x_path == false) && (find_y_path == false)) {
+		return false;
+	}
+
+	return true;
+}
+
 bool check_valid(int x, int y, int n)
 {
+	int prev_x0;
+	int prev_y0;
+	int pow10;
+
 	if (check_digit_sum(x, y, n) == false) {
 		return false;
 	}
 
-	if ((check_digit_sum(x - 1, y, n) == true) ||
-		(check_digit_sum(x + 1, y, n) == true) ||
-		(check_digit_sum(x, y - 1, n) == true) ||
-		(check_digit_sum(x, y + 1, n) == true)) {
-		return true;
-	}
+	pow10 = 10;
+	do
+	{
+		prev_x0 = x - (x % pow10);
+		prev_y0 = y - (y % pow10);
+
+		if (find_path(prev_x0, prev_y0, n) == true)
+			return true;
+
+		pow10 *= 10;
+	} while ((x >= pow10) && (y >= pow10));
 
 	return false;
 }
@@ -75,15 +121,34 @@ int _tmain(int argc, _TCHAR* argv[])
 	int max_xy;
 	int x, y;
 	int valid_point = 0;
+	bool valid;
+	FILE *stream;
+
+	if ((fopen_s(&stream, "Point.csv", "w")) != 0) {
+		printf("The file 'Point.csv' was not opened\n");
+		return -1;
+	}
 
 	max_xy = get_max_xy(n);
+	fprintf(stream, " ");
+	for (x = 1; x <= max_xy; x++) {
+		fprintf(stream, ", %d", x);
+	}
+	fprintf(stream, "\n");
 	for (y = 0; y <= max_xy; y++) {
+		fprintf(stream, "%d", y);
+
 		for (x = 1; x <= max_xy; x++) {
-			if (check_valid(x, y, n) == true) {
+			valid = check_valid(x, y, n);
+			if (valid == true) {
 				valid_point++;
 			}
+
+			fprintf(stream, "%s", (valid == true) ? ", 1" : ", 0");
 		}
+		fprintf(stream, "\n");
 	}
+	fclose(stream);
 
 	valid_point *= 4;	// quadrantal
 	valid_point += 1;	// (0, 0)

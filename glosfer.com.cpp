@@ -54,7 +54,7 @@ bool check_digit_sum(int x, int y, int n)
 	return true;
 }
 
-bool find_path(int x0, int y0, int n)
+bool find_path(int x0, int y0, int n, int check_boundary)
 {
 	int x0_org, y0_org;
 	bool find_x_path;
@@ -64,7 +64,7 @@ bool find_path(int x0, int y0, int n)
 	y0_org = y0;
 
 	find_x_path = true;
-	while (x0 >= 10) {
+	while (x0 >= check_boundary) {
 		if (check_digit_sum(x0 - 1, y0_org, n) == false) {
 			find_x_path = false;
 			break;
@@ -74,7 +74,7 @@ bool find_path(int x0, int y0, int n)
 	}
 
 	find_y_path = true;
-	while (y0 >= 10) {
+	while (y0 >= check_boundary) {
 		if (check_digit_sum(x0_org, y0 - 1, n) == false) {
 			find_y_path = false;
 			break;
@@ -95,24 +95,40 @@ bool check_valid(int x, int y, int n)
 	int prev_x0;
 	int prev_y0;
 	int pow10;
+	int check_boundary;
 
 	if (check_digit_sum(x, y, n) == false) {
 		return false;
 	}
 
-	pow10 = 10;
+	check_boundary = 1;
 	do
 	{
+		check_boundary *= 10;
+		if (check_boundary > 10)
+			check_boundary += 10;
+	} while ((x >= check_boundary) && (y >= check_boundary));
+	if (check_boundary > 10)
+		check_boundary -= 10;
+	check_boundary /= 10;
+
+	pow10 = 1;
+	do
+	{
+		pow10 *= 10;
+
 		prev_x0 = x - (x % pow10);
 		prev_y0 = y - (y % pow10);
 
-		if (find_path(prev_x0, prev_y0, n) == true)
-			return true;
+		if (find_path(prev_x0, prev_y0, n, check_boundary) == false)
+			return false;
 
-		pow10 *= 10;
-	} while ((x >= pow10) && (y >= pow10));
+		if (check_boundary > 10)
+			check_boundary -= 10;
+		check_boundary /= 10;
+	} while (check_boundary > 1);
 
-	return false;
+	return true;
 }
 
 int _tmain(int argc, _TCHAR* argv[])

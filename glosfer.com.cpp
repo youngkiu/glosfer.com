@@ -114,8 +114,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	int n = 19;
 	int max_xy;
 	int x, y;
-	int valid_point = 0;
-	bool valid;
+	int valid_point_count = 0;
+	bool point_valid;
 	FILE *stream;
 
 	if ((fopen_s(&stream, "Point.csv", "w")) != 0) {
@@ -133,22 +133,20 @@ int _tmain(int argc, _TCHAR* argv[])
 		fprintf(stream, "%d", y);
 
 		for (x = 1; x <= max_xy; x++) {
-			valid = check_valid(x, y, n);
-			if (valid == true) {
-				valid_point++;
+			point_valid = check_valid(x, y, n);
+			if (point_valid == true) {
+				valid_point_count++;
 			}
 
-			fprintf(stream, "%s", (valid == true) ? ", 1" : ", 0");
+			fprintf(stream, "%s", (point_valid == true) ? ", 1" : ", 0");
 		}
 		fprintf(stream, "\n");
 	}
 	fclose(stream);
 
-	valid_point *= 4;	// quadrantal
-	valid_point += 1;	// (0, 0)
+	valid_point_count *= 4;	// quadrantal
 
-	printf("Number of Point: %d \n", valid_point);
+	printf("Number of Point: %d \n", valid_point_count);
 
 	return 0;
 }
-

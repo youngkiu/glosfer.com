@@ -54,79 +54,57 @@ bool check_digit_sum(int x, int y, int n)
 	return true;
 }
 
-bool find_path(int x0, int y0, int n, int check_boundary)
+int get_num_of_digit(int x)
 {
-	int x0_org, y0_org;
-	bool find_x_path;
-	bool find_y_path;
+	int num_of_digit = 0;
 
-	x0_org = x0;
-	y0_org = y0;
-
-	find_x_path = true;
-	while (x0 >= check_boundary) {
-		if (check_digit_sum(x0 - 1, y0_org, n) == false) {
-			find_x_path = false;
-			break;
-		}
-
-		x0 -= 10;
+	while (x) {
+		num_of_digit++;
+		x /= 10;
 	}
 
-	find_y_path = true;
-	while (y0 >= check_boundary) {
-		if (check_digit_sum(x0_org, y0 - 1, n) == false) {
-			find_y_path = false;
-			break;
-		}
+	return num_of_digit;
+}
 
-		y0 -= 10;
+int get_digit_num(int x, int digit)
+{
+	int i;
+
+	for (i = 0; i < (digit - 1); i++) {
+		x /= 10;
+	}
+	for (i = 0; i < (digit - 1); i++) {
+		x *= 10;
 	}
 
-	if ((find_x_path == false) && (find_y_path == false)) {
-		return false;
-	}
-
-	return true;
+	return x;
 }
 
 bool check_valid(int x, int y, int n)
 {
-	int prev_x0;
-	int prev_y0;
-	int pow10;
-	int check_boundary;
+	int num_of_x_digit;
+	int num_of_y_digit;
+	int xi, yi;
+	int x0, y0;
 
 	if (check_digit_sum(x, y, n) == false) {
 		return false;
 	}
 
-	check_boundary = 1;
-	do
-	{
-		check_boundary *= 10;
-		if (check_boundary > 10)
-			check_boundary += 10;
-	} while ((x >= check_boundary) && (y >= check_boundary));
-	if (check_boundary > 10)
-		check_boundary -= 10;
-	check_boundary /= 10;
+	num_of_x_digit = get_num_of_digit(x);
+	num_of_y_digit = get_num_of_digit(y);
 
-	pow10 = 1;
-	do
-	{
-		pow10 *= 10;
+	for (xi = num_of_x_digit; xi > 0; xi--) {
+		x0 = get_digit_num(x, xi);
+		for (yi = num_of_y_digit; yi > 0; yi--) {
+			y0 = get_digit_num(y, yi);
 
-		prev_x0 = x - (x % pow10);
-		prev_y0 = y - (y % pow10);
-
-		if (find_path(prev_x0, prev_y0, n, check_boundary) == false)
-			return false;
-
-		if (check_boundary > 10)
-			check_boundary -= 10;
-		check_boundary /= 10;
-	} while (check_boundary > 1);
+			if ((check_digit_sum(x0 - 1, y0, n) == false) &&
+				(check_digit_sum(x0, y0 - 1, n) == false)) {
+				return false;
+			}
+		}
+	}
 
 	return true;
 }

@@ -145,6 +145,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	fclose(stream);
 
 	valid_point_count *= 4;	// quadrantal
+	valid_point_count += 1;	// (0, 0)
 
 	printf("Number of Point: %d \n", valid_point_count);
 
